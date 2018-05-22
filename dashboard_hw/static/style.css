@@ -1,0 +1,77 @@
+body{
+    
+    background-color: rgb(183, 235, 241);
+    font-family: Arial, Helvetica, sans-serif;
+    margin:0;
+    padding-top:25px;    
+}
+
+/* #sampleDiv.col-sm {
+
+    background-color:rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    padding:25px;
+    margin-top:75px;
+    margin-bottom:90px;
+    margin-left:20px;
+    margin-right:20px;
+}     */
+    #dash {
+
+    background-color:rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(0, 0, 0);
+    text-align: left;
+    padding:5px;
+    /* margin-top:50px; */
+    /* margin-bottom:90px; */
+    /* margin-left:20px;
+    margin-right:20px; */
+
+}
+#sampleDiv {
+
+    background-color:rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(0, 0, 0);
+    text-align: left;
+    padding:25px;
+ 
+}    
+    /* #dropdown{
+
+    background-color:rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    padding:25px;
+    margin-top:5px;
+    margin-bottom:90px;
+    margin-left:20px;
+    margin-right:20px;
+} */
+
+/* #sampleDiv {
+
+    background-color:rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    padding:25px;
+    margin-top:5px;
+    margin-bottom:90px;
+    margin-left:20px;
+    margin-right:20px;
+} */
+
+/* .table {
+    max-width: none;
+    table-layout: fixed;
+    word-wrap: break-word;
+}  */
+/* .form-group{
+    margin-top:25px;
+    margin-left:18px;
+} */

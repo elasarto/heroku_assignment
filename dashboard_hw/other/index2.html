@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <header>
+  </header>
+  <body>
+      <div class="container">
+         <div class="row justify-content-center">
+          <div class="col-xl responsive-xl" id="dash">
+          <h6 style="font-size:2.5vw">Bacteria Biodiversity Dashboard</h6>
+          <br>
+          </div>
+         
+        </div>
+        <div class="row justify-content-left">
+        <div class="col-md" id="dash">
+                <select style="font-size:1.25vw" id="select" onChange="optionChanged(this.value)">
+                        <option value="default">Select Sample:</option>
+                    </select>   
+               <br>
+               <br>  
+        <div class="col-md" style="font-size:16px" id="sampleDiv">
+          
+            <script>
+                // sample dropdown options + info
+                var url = "/names"
+                Plotly.d3.json(url, function(error, response) {
+                if (error) return console.warn(error);
+                console.log(response);
+                
+                var select = document.getElementById("select"),
+                itemArray = response;
+
+                for (var i = 0; i < itemArray.length; i++) {
+
+                    var opt = itemArray[i];
+                    var el = document.createElement("option");
+                    el.textContent = opt;
+                    el.value = opt;
+                    select.appendChild(el);
+    
+                }})
+            
+                var default_url = "/metadata/BB_940";
+                Plotly.d3.json(default_url, function(error, response) {
+                    if (error) return console.warn(error);
+                    var data = response;
+                    
+                    var samples = JSON.stringify(data, null, 4, "\t", "\\n");
+                    document.getElementById("sampleDiv").innerHTML = (samples).replace(/[{"}]/g, "");
+                    
+                })    
+                function updatePlotly(newdata) {
+
+                    var newSamples = JSON.stringify(newdata, null, 4, "\t");
+                    document.getElementById("sampleDiv").innerHTML = newSamples.replace(/[{"}]/g, "");
+                };
+
+                //    function optionChanged(route) {
+                //     console.log(route);
+                //     Plotly.d3.json(`metadata/${route}`, function(error, data) {
+                //     console.log("newdata", data);
+                                       
+                //     updatePlotly(data);
+                            // });
+                        // }                
+            </script>
+        </div>
+        </div> 
+        <div class="row justify-content-left"></div>
+      
+        <div class="col-md" id="myDiv3">
+            <!-- pie chart -->
+            <script>
+            var data = [{
+                values: [19, 26, 55],
+                labels: ['Residential', 'Non-Residential', 'Utility'],
+                type: 'pie'
+              }];
+              
+              var layout = {
+                height: 400,
+                width: 400
+              };
+              
+              Plotly.newPlot('myDiv3', data, layout);
+      </script>
+           
+        </div>
+
+        <div class="col-sm" id="myDiv5"></div>
+        <!-- gauge chart for washes -->
+
+            <script>
+                var default_url = "/wfreq/BB_950";
+                Plotly.d3.json(default_url, function(error, response) {
+                    if (error) return console.warn(error);
+                    // var data = response;
+
+                // Enter a speed between 0 and 9
+                var level = +response;
+        
+                // Trig to calc meter point
+                var degrees = 180 - level,
+                    radius = .5;
+                var radians = degrees * Math.PI / 180;
+                var x = radius * Math.cos(radians);
+                var y = radius * Math.sin(radians);
+                
+                // Path: may have to change to create a better triangle
+                var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
+                    pathX = String(x),
+                    space = ' ',
+                    pathY = String(y),
+                    pathEnd = ' Z';
+                var path = mainPath.concat(pathX,space,pathY,pathEnd);
+                
+                var data = [{ type: 'scatter',
+                x: [0], y:[0],
+                    marker: {size: 28, color:'850000'},
+                    showlegend: false,
+                    name: 'washes',
+                    text: level,
+                    hoverinfo: 'text+name'},
+                { values: [50/6, 50/6, 50/6, 50/6, 50/6, 50/6, 50],
+                rotation: 90,
+                text: ['6-7', '5-6', '4-5', '2-3',
+                            '1-2', '0-1', ''],
+                textinfo: 'text',
+                textposition:'inside',      
+                marker: {colors:['rgba(14, 127, 0, .5)', 'rgba(110, 154, 22, .5)',
+                                        'rgba(170, 202, 42, .5)', 'rgba(202, 209, 95, .5)',
+                                        'rgba(210, 206, 145, .5)', 'rgba(232, 226, 202, .5)',
+                                        'rgba(255, 255, 255, 0)']},
+                labels: ['5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
+                hoverinfo: 'label',
+                hole: .5,
+                type: 'pie',
+                showlegend: false
+                }];
+                
+                var layout = {
+                shapes:[{
+                    type: 'path',
+                    path: path,
+                    fillcolor: '850000',
+                    line: {
+                        color: '850000'
+                    }
+                    }],
+                title: '<b>Gauge</b> <br> Speed 0-100',
+                height: 500,
+                width: 500,
+                xaxis: {zeroline:false, showticklabels:false,
+                            showgrid: false, range: [-1, 1]},
+                yaxis: {zeroline:false, showticklabels:false,
+                            showgrid: false, range: [-1, 1]}
+                };
+                
+                Plotly.newPlot('myDiv5', data, layout);
+                
+                    
+            
+            // function updatePlotly(newdata) {
+            //     var gauge = document.getElementById('myDiv');
+            //     Plotly.restyle('myDiv', newdata, layout)
+            // }
+            // function optionChanged(route) {
+            //         console.log(route);
+            //         Plotly.d3.json(`wfreq/${route}`, function(error, data) {
+            //         console.log("newdata", data, layout);
+                                       
+            //         updatePlotly(data);
+                            });
+                        // }    
+                </script>
+           </div>           
+     <!-- bubble chart  -->
+     <div class="col-xl responsive-xl" id="dash">
+     <div class="col-sm" style="font-size:1.25vw" id="myDiv2"></div>
+           
+     <script>
+            var trace1 = {
+                x: [1, 2, 3, 4],
+                y: [10, 11, 12, 13],
+                mode: 'markers',
+                marker: {
+                color: ['rgb(93, 164, 214)', 'rgb(255, 144, 14)',  'rgb(44, 160, 101)', 'rgb(255, 65, 54)'],
+                opacity: [1, 0.8, 0.6, 0.4],
+                size: [40, 60, 80, 100]
+                }
+            };
+            
+            var data = [trace1];
+            
+            var layout = {
+                title: 'Marker Size and Color',
+                showlegend: false,
+                height: 600,
+                width: 1000
+            };
+            
+            Plotly.newPlot('myDiv2', data, layout);
+        </script>
+<div class="col-sm" style="font-size:1.25vw" id="myDiv4"></div>
+<script>// Enter a speed between 0 and 180
+        var level = 125;
+        
+        // Trig to calc meter point
+        var degrees = 180 - level,
+             radius = .5;
+        var radians = degrees * Math.PI / 180;
+        var x = radius * Math.cos(radians);
+        var y = radius * Math.sin(radians);
+        
+        // Path: may have to change to create a better triangle
+        var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
+             pathX = String(x),
+             space = ' ',
+             pathY = String(y),
+             pathEnd = ' Z';
+        var path = mainPath.concat(pathX,space,pathY,pathEnd);
+        
+        var data = [{ type: 'scatter',
+           x: [0], y:[0],
+            marker: {size: 28, color:'850000'},
+            showlegend: false,
+            name: 'speed',
+            text: level,
+            hoverinfo: 'text+name'},
+          { values: [50/6, 50/6, 50/6, 50/6, 50/6, 50/6, 50],
+          rotation: 90,
+          text: ['TOO FAST!', 'Pretty Fast', 'Fast', 'Average',
+                    'Slow', 'Super Slow', ''],
+          textinfo: 'text',
+          textposition:'inside',      
+          marker: {colors:['rgba(14, 127, 0, .5)', 'rgba(110, 154, 22, .5)',
+                                 'rgba(170, 202, 42, .5)', 'rgba(202, 209, 95, .5)',
+                                 'rgba(210, 206, 145, .5)', 'rgba(232, 226, 202, .5)',
+                                 'rgba(255, 255, 255, 0)']},
+          labels: ['151-180', '121-150', '91-120', '61-90', '31-60', '0-30', ''],
+          hoverinfo: 'label',
+          hole: .5,
+          type: 'pie',
+          showlegend: false
+        }];
+        
+        var layout = {
+          shapes:[{
+              type: 'path',
+              path: path,
+              fillcolor: '850000',
+              line: {
+                color: '850000'
+              }
+            }],
+          title: '<b>Gauge</b> <br> Speed 0-100',
+          height: 500,
+          width: 500,
+          xaxis: {zeroline:false, showticklabels:false,
+                     showgrid: false, range: [-1, 1]},
+          yaxis: {zeroline:false, showticklabels:false,
+                     showgrid: false, range: [-1, 1]}
+        };
+        
+        Plotly.newPlot('myDiv4', data, layout);
+        
+        
+        function optionChanged(route) {
+                    console.log(route);
+                    Plotly.d3.json(`metadata/${route}`, function(error, data) {
+                    console.log("newdata", data);
+                                       
+                    updatePlotly(data);
+        
+                    });
+                }
+        </script>
+</div>
+
+
+     </div> 
+    </div>
+        </div> 
+</div> 
+     
+    <!-- <script src="static/app.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+</body>
+</html>

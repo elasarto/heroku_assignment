@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <header>
+  </header>
+  <body>
+      <div class="container">
+         <div class="row justify-content-center">
+          <div class="col-xl responsive-xl" id="dash">
+          <h6 style="font-size:2.5vw">Bacteria Biodiversity Dashboard</h6>
+          <br>
+          </div>
+         
+        </div>
+        <div class="row justify-content-left">
+        <div class="col-md" id="dash">
+                <select style="font-size:1.25vw" id="select" onChange="optionChanged(this.value)">
+                        <option value="default">Select Sample:</option>
+                    </select>   
+               <br>
+               <br>  
+        <div class="col-md" style="font-size:16px" id="sampleDiv">
+          
+            <script>
+                // sample dropdown options + info
+                var url = "/names"
+                Plotly.d3.json(url, function(error, response) {
+                if (error) return console.warn(error);
+                console.log("names response", response);
+                
+                var select = document.getElementById("select"),
+                itemArray = response;
+
+                for (var i = 0; i < itemArray.length; i++) {
+
+                    var opt = itemArray[i];
+                    var el = document.createElement("option");
+                    el.textContent = opt;
+                    el.value = opt;
+                    select.appendChild(el);
+    
+                }})
+            
+                var default_url = "/metadata/BB_940";
+                Plotly.d3.json(default_url, function(error, response) {
+                    if (error) return console.warn(error);
+                    var data = response;
+                    
+                    var samples = JSON.stringify(data, null, 4, "\t", "\\n");
+                    document.getElementById("sampleDiv").innerHTML = (samples).replace(/[{"}]/g, "");
+                    
+                })    
+                function updatePlotly(newsamples) {
+
+                    var newSamples = JSON.stringify(newsamples, null, 4, "\t");
+                    document.getElementById("sampleDiv").innerHTML = (newSamples).replace(/[{"}]/g, "");
+                }
+
+                // function optionChanged(route) {
+                //     console.log(route);
+                //     Plotly.d3.json(`/metadata/${route}`, function(error, data) {
+                //         console.log("newsamples", data);                 
+                //     updatePlotly(data);
+                            
+                //         });
+                //     }               
+            </script>
+        </div>
+        </div> 
+        <div class="row justify-content-left"></div>
+      
+        <div class="col-md" id="myDiv3">
+            <!-- pie chart -->
+            <script>
+                    var default_url = "/samples/BB_940";
+                    Plotly.d3.json(default_url, function(error, response) {
+                        if (error) return console.warn(error);
+                    
+                        overTen = response[2];
+                        overTwenty = response[1];
+
+                    function tenAndOver(output) {
+
+                        return output > 38;
+                    }
+
+                    // var data = response;
+                    console.log("pie samples", response)
+                    var data = [{
+                        values: overTen.filter(tenAndOver),
+                        labels: overTwenty.filter(tenAndOver),
+                        type: 'pie'
+                    }];
+                    
+                    var layout = {
+                        height: 600,
+                        width: 400
+                    };
+                    
+                        Plotly.plot('myDiv3', data, layout);
+                    }) 
+                    function updatePlotly(data2) {
+
+                        var pieChart = document.getElementById('myDiv3');
+                        var update = {data2        
+                        };
+                        Plotly.restyle('myDiv3', update)
+                        // Plotly.restyle('myDiv3', update, data2)
+                        };
+
+                    // function optionChanged(route) {
+                    //     console.log(route);
+                    //     Plotly.d3.json(`/samples/${route}`, function(error, data) {
+                    //         console.log("piechart", data);              
+                    //         updatePlotly(data);
+                    // });
+                    // } 
+            </script>
+        </div>
+
+        <div class="col-sm" id="myDiv5"></div>
+        <!-- gauge chart for washes -->
+
+            <script>
+                var default_url = "/wfreq/BB_940";
+                Plotly.d3.json(default_url, function(error, response) {
+                    if (error) return console.warn(error);
+                    // var data = response;
+                    console.log("gauge response", response);    
+                // Enter a speed between 0 and 9
+                var level = response[0];
+        
+                // Trig to calc meter point
+                var degrees = 180 - level,
+                    radius = .5;
+                var radians = degrees * Math.PI / 180;
+                var x = radius * Math.cos(radians);
+                var y = radius * Math.sin(radians);
+                
+                // Path: may have to change to create a better triangle
+                var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
+                    pathX = String(x),
+                    space = ' ',
+                    pathY = String(y),
+                    pathEnd = ' Z';
+                var path = mainPath.concat(pathX,space,pathY,pathEnd);
+                
+                var data = [{ type: 'scatter',
+                x: [0], y:[0],
+                    marker: {size: 28, color:'850000'},
+                    showlegend: false,
+                    name: 'washes',
+                    text: level,
+                    hoverinfo: 'text+name'},
+                { values: [50/6, 50/6, 50/6, 50/6, 50/6, 50/6, 50],
+                rotation: 90,
+                text: ['6-7', '5-6', '4-5', '2-3',
+                            '1-2', '0-1', ''],
+                textinfo: 'text',
+                textposition:'inside',      
+                marker: {colors:['rgba(14, 127, 0, .5)', 'rgba(110, 154, 22, .5)',
+                                        'rgba(170, 202, 42, .5)', 'rgba(202, 209, 95, .5)',
+                                        'rgba(210, 206, 145, .5)', 'rgba(232, 226, 202, .5)',
+                                        'rgba(255, 255, 255, 0)']},
+                labels: ['5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
+                hoverinfo: 'label',
+                hole: .5,
+                type: 'pie',
+                showlegend: false
+                }];
+                
+                var layout = {
+                shapes:[{
+                    type: 'path',
+                    path: path,
+                    fillcolor: '850000',
+                    line: {
+                        color: '850000'
+                    }
+                    }],
+                title: '<b>Belly Button Washing Frequency</b> <br> Scrubs per Week',
+                height: 500,
+                width: 500,
+                xaxis: {zeroline:false, showticklabels:false,
+                            showgrid: false, range: [-1, 1]},
+                yaxis: {zeroline:false, showticklabels:false,
+                            showgrid: false, range: [-1, 1]}
+                };
+                
+                Plotly.plot('myDiv5', data, layout);
+            }) 
+                function updatePlotly(data2) {
+
+                    var gaugeChart = document.getElementById('myDiv5');
+                    var update = {data2        
+                    };
+
+                    Plotly.restyle('myDiv5', update)
+                    }
+
+                // function optionChanged(route) {
+                //     console.log(route);
+                //     Plotly.d3.json(`/samples/${route}`, function(error, data) {
+                //         console.log("gaugechart", data);                
+                //         updatePlotly(data);
+                //             });
+                //         }  
+                </script>
+           </div>           
+     <!-- bubble chart  -->
+     <div class="col-xl responsive-xl" id="dash">
+     <div class="col-sm" style="font-size:1.25vw" id="myDiv2"></div>
+           
+     <script>
+            var default_url = "/samples/BB_940";
+                    Plotly.d3.json(default_url, function(error, response) {
+                        if (error) return console.warn(error);
+                        // var data = response;
+                        console.log("bubble chart samples", response); 
+                    
+                    overTen = response[2];
+                    overTwenty = response[1];        
+
+                    function tenAndOver(output) {
+
+                    return output > 38;
+                    }
+                    
+                var trace1 = {
+                    x: overTwenty.filter(tenAndOver),
+                    y: overTen.filter(tenAndOver),
+                    mode: 'markers',
+                    marker: {
+                    color: ['rgb(93, 164, 214)', 'rgb(255, 144, 14)',  'rgb(44, 160, 101)', 'rgb(255, 65, 54)', 'rgb(93, 164, 214)', 'rgb(255, 144, 14)', 'rgb(44, 160, 101)', 'rgb(255, 65, 54)','rgb(44, 160, 101)', 'rgb(255, 65, 54)'],
+                    opacity: [1, 0.8, 0.6, 0.45, 0.8, 0.6, 0.4, 0.6],
+                    size: [100, 90, 80, 70, 60, 50, 40, 30, 20, 10]
+                    }
+                };
+            
+                var data = [trace1];
+                
+                var layout = {
+                    title: '',
+                    showlegend: false,
+                    height: 600,
+                    width: 1000
+                };
+            
+                Plotly.plot('myDiv2', data, layout);
+            })
+                function updatePlotly(data2) {
+
+                    var bubbleChart = document.getElementById('myDiv2');
+                    var update = {
+                        data2
+                    };   
+
+                Plotly.restyle('myDiv2', update);
+                    // Plotly.restyle('myDiv2', 2)
+                    };
+
+                function optionChanged(route) {
+                    console.log(route);
+                    Plotly.d3.json(`/metadata/${route}`, function(error, data) {
+                        console.log("test", data);
+                        
+                        updatePlotly(data);
+                        
+                        });
+                    }
+            </script>
+</div>
+
+
+     </div> 
+    </div>
+        </div> 
+</div> 
+     
+    <!-- <script src="static/app.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+</body>
+</html>
